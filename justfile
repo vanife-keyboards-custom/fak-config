@@ -16,6 +16,10 @@ default:
   - [ ] create versions of keys using different languages including EN, DE, RU, UA
   - [ ] create highlights for various combinations (zoom in/out, launch apps, switch apps etc); copy many ideas from UHK and Ben Vallack
   - [ ] 
+ [ ] challenge HRM, especially SHIFT key (see below)
+ [ ] dedicated thumb SHIFT key???
+ [ ] dedicated thumb CTRL key (see Ben Vallack 34 key setup)
+ [ ] do i really need FN keys??? only Alt-F4 is used, which can be mapped directly to enhanced CTRL-W?
 
 ')]
 end:
