@@ -11,6 +11,21 @@ BUILD_DIR = 'build'
 FAK_CACHE_DIR = '.fak_cache'
 EVAL_NCL_PATH = FAK_CACHE_DIR + '/eval.ncl'
 
+# Keyboards skipped by compile_all. It aborts on the first failure, so one board that
+# cannot build hides the results for every board after it.
+#   hexingbird: its keymaps use encoder.cw/ccw but keyboard.ncl declares no encoders, so
+#     FAK's `index | BoundedInt 0 (std.array.length kb.encoders)` fails against an empty
+#     list. Inherited unchanged from ThePurox/fak-config, where it is broken too.
+#   zilpzalp: keyboard.ncl declares 30 keys (28 + two extra at `M 4 0, M 4 1`), so a
+#     base_layout string must be 26 chars (30 - 4 thumbs). Only `aptmak` is (it ends in a
+#     suspicious "OOO"); `qwerty` and `colemak` are still 24, i.e. sized for the upstream
+#     28-key zilpzalp. Unresolved which side is wrong -- kilipan's board is 28 keys, which
+#     argues the two extra keys are the anomaly and aptmak was padded to match. Fixing it
+#     means choosing 2 keycodes (or deleting 2 keys) for hardware nobody here owns.
+# Both are reference designs only -- no such board is owned. Either still builds on demand:
+#   fak compile -kb <kb> -km <km>
+COMPILE_ALL_SKIP = ['hexingbird', 'zilpzalp']
+
 
 def check(proc):
     if proc.returncode != 0:
@@ -120,6 +135,11 @@ def fak_py(subcmd, keyboard_name, keymap_name):
 def compile_all():
     for kb_ncl in glob.glob('keyboards/*/keyboard.ncl'):
         keyboard_name = os.path.basename(os.path.dirname(kb_ncl))
+
+        if keyboard_name in COMPILE_ALL_SKIP:
+            print('-' * 32)
+            print(f'Skipping {keyboard_name} (in COMPILE_ALL_SKIP)')
+            continue
 
         for km_ncl in glob.glob(f'keyboards/{keyboard_name}/keymaps/*.ncl'):
             keymap_name = os.path.basename(km_ncl).removesuffix('.ncl')
