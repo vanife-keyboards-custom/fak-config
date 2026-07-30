@@ -124,7 +124,22 @@ in
   # conditional_layers = {"5" = [1, 4],}, # does not work for some reason, so defined simply inline
   layers = [layer_default] @ (
     ["NAV", "FUN", "SYM", "NUM", "MOU"]
-    |> std.array.map (fun name => layout.layers."%{name}")
-    # |> std.array.map (fun layer => layer @ virtual_filler)    # disable if combos are also on the other layers
+    # Only `miryoku` defines every layer; the older layouts predate MOU. Missing => blank.
+    |> std.array.map (fun name =>
+      if std.record.has_field name layout.layers then
+        layout.layers."%{name}"
+      else
+        []
+    )
+    # Layers that already spell out their combo (virtual) keys are key_count long; the older
+    # 34-key layers (NAV0/NUM0/SYM/FUN/…) are not. Pad the short ones instead of requiring
+    # every layout to be rewritten. Replaces the commented-out unconditional `@ virtual_filler`.
+    |> std.array.map (fun layer =>
+      let n = std.array.length layer in
+      if n < key_count then
+        layer @ (std.array.replicate (key_count - n) XXXX)
+      else
+        layer
+    )
   )
 }
